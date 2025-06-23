@@ -4,8 +4,32 @@
 
 @layer base {
   :root {
-    --color-primary: #3b82f6;
-    --color-primary-dark: #1d4ed8;
+    --color-primary: #C00001;
+    --color-primary-dark: #A00001;
+    --color-secondary: #F6D316;
+    --color-accent: #857040;
+  }
+  
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  }
+}
+
+@layer components {
+  .form-section {
+    @apply bg-white rounded-xl shadow-custom border border-gray-100 p-6;
+  }
+  
+  .section-header {
+    @apply text-center py-3 px-4 rounded-lg font-semibold text-white text-sm tracking-wide uppercase;
+  }
+  
+  .input-group {
+    @apply flex items-center space-x-3;
+  }
+  
+  .label-style {
+    @apply text-sm font-medium text-gray-700 min-w-fit;
   }
 }
 
@@ -24,5 +48,13 @@
   
   .bg-primary-dark {
     background-color: var(--color-primary-dark);
+  }
+  
+  .gradient-bg {
+    background: linear-gradient(135deg, #C00001 0%, #A00001 100%);
+  }
+  
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-custom-lg hover:-translate-y-1;
   }
 }
