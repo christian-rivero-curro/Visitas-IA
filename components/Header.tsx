@@ -8,13 +8,8 @@ const Header: React.FC = () => {
         <div className="flex items-center space-x-3">
           <FaStar className="text-2xl" />
           <h1 className="text-xl font-semibold">
-            Intranet del Departament de Benestar i Família
+            Departament de Benestar i Família
           </h1>
-        </div>
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-white/20 rounded flex items-center justify-center">
-            <span className="text-sm font-bold">X</span>
-          </div>
         </div>
       </div>
       <div className="bg-gray-800 px-6 py-2">
