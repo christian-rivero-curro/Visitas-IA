@@ -1,6 +1,6 @@
 import React from 'react';
 
-type Screen = 'visit-form' | 'visitor-discharge';
+type Screen = 'visit-form' | 'visitor-discharge' | 'visit-history' | 'statistics';
 
 interface NavigationBarProps {
   currentScreen: Screen;
@@ -10,9 +10,8 @@ interface NavigationBarProps {
 const NavigationBar: React.FC<NavigationBarProps> = ({ currentScreen, onNavigate }) => {
   const navItems = [
     { label: 'Baixa del visitant', screen: 'visitor-discharge' as Screen },
-    { label: 'Històric', href: '#' },
-    { label: 'Històric avui', href: '#' },
-    { label: 'Estadístiques', href: '#' },
+    { label: 'Històric', screen: 'visit-history' as Screen },
+    { label: 'Estadístiques', screen: 'statistics' as Screen },
     { label: 'Tasques de l\'administrador', href: '#' },
     { label: 'Tornar enrere', screen: 'visit-form' as Screen },
     { label: 'Sortir', href: '#' }

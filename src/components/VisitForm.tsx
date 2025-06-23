@@ -3,6 +3,26 @@ import Button from './Button.tsx';
 import Input from './Input.tsx';
 import Select from './Select.tsx';
 import TextArea from './TextArea.tsx';
+import SearchPopup, { SearchResult }  from './SearchPopup.tsx';
+import { API_BASE_URL } from '../apiConfig.ts';
+
+interface VisitorCoreData {
+  dni: string;
+  name: string;
+  company: string;
+}
+
+// Detalles que pertenecen a cada visita específica
+interface VisitDetailsData {
+  reason: string;
+  cardNumber: string;
+  visitors: number;
+  color: string;
+  observations: string;
+}
+
+// Combinamos las interfaces para el estado del formulario, para no cambiar el JSX
+type FormVisitorState = VisitorCoreData & VisitDetailsData;
 
 interface Employee {
   id: number;
@@ -14,17 +34,6 @@ interface Employee {
   phone: string;
 }
 
-interface VisitorData {
-  dni: string;
-  name: string;
-  company: string;
-  reason: string;
-  cardNumber: string;
-  visitors: number;
-  color: string;
-  observations: string;
-}
-
 interface VisitData {
   name: string;
   dg: string;
@@ -34,10 +43,16 @@ interface VisitData {
   phone: string;
 }
 
+function isGenericIDValid(dni: string): boolean {
+  const trimmed = dni.trim();
+  // Admite letras, números, guiones, y puntos. Longitud entre 4 y 20 caracteres.
+  return /^[A-Za-z0-9\-\.]{4,20}$/.test(trimmed);
+}
+
 const VisitForm: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
-  const [visitor, setVisitor] = useState<VisitorData>({
+  const [visitor, setVisitor] = useState<FormVisitorState>({
     dni: '',
     name: '',
     company: '',
@@ -58,6 +73,12 @@ const VisitForm: React.FC = () => {
   });
 
   const [unknownVisitor, setUnknownVisitor] = useState(false);
+  const [dniError, setDniError] = useState<string>('');
+  
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [popupTitle, setPopupTitle] = useState('');
+  const [isLoading, setIsLoading] = useState(false); // Para feedback al usuario
 
   useEffect(() => {
     fetchEmployees();
@@ -65,7 +86,7 @@ const VisitForm: React.FC = () => {
 
   const fetchEmployees = async () => {
     try {
-      const response = await fetch('http://localhost:3001/employees');
+      const response = await fetch(`${API_BASE_URL}/employees`);
       const data = await response.json();
       setEmployees(data);
     } catch (error) {
@@ -73,7 +94,8 @@ const VisitForm: React.FC = () => {
     }
   };
 
-  const handleVisitorChange = (field: keyof VisitorData, value: string | number) => {
+  const handleVisitorChange = (field: keyof FormVisitorState, value: string | number) => {
+    if (field === 'dni') setDniError('');
     setVisitor(prev => ({ ...prev, [field]: value }));
   };
 
@@ -96,23 +118,70 @@ const VisitForm: React.FC = () => {
     }
   };
 
-  const searchVisitor = async () => {
-    if (!visitor.dni) return;
-    
+  const handleSearch = async (searchType: 'dni' | 'name') => {
+    const searchTerm = searchType === 'dni' ? visitor.dni : visitor.name;
+    if (!searchTerm.trim()) {
+      alert(`Si us plau, introdueix un ${searchType} per a buscar.`);
+      return;
+    }
+
+    setIsLoading(true);
+    setPopupTitle(`Cercant per ${searchType}...`);
+
     try {
-      const response = await fetch(`http://localhost:3001/visits?visitor.dni=${visitor.dni}`);
-      const data = await response.json();
+      // Usamos los parámetros _like que nuestro backend ahora entiende
+      const queryParam = searchType === 'dni' 
+        ? `dni_like=${searchTerm}` 
+        : `name_like=${searchTerm}`;
+
+      const response = await fetch(`${API_BASE_URL}/visits?${queryParam}`);
+      const data: SearchResult[] = await response.json();
+
+      // Desduplicamos los resultados para mostrar cada visitante una sola vez
+      const uniqueVisitors: SearchResult[] = [];
+      const seenDnis = new Set<string>();
+      data.forEach(v => {
+        if (v.visitor && v.visitor.dni && !seenDnis.has(v.visitor.dni)) {
+          seenDnis.add(v.visitor.dni);
+          uniqueVisitors.push(v);
+        }
+      });
       
-      if (data.length > 0) {
-        const existingVisit = data[0];
-        setVisitor(existingVisit.visitor);
-      }
+      setSearchResults(uniqueVisitors);
+      setPopupTitle(`Resultats de la cerca per "${searchTerm}"`);
+      setIsPopupOpen(true);
     } catch (error) {
       console.error('Error searching visitor:', error);
+      alert('Hi ha hagut un error en la cerca.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
+    const handleSelectVisitor = (selectedVisitorData: FormVisitorState) => {
+    setVisitor(currentState => ({
+      ...currentState, // Mantiene los valores actuales de los detalles (motivo, tarjeta, etc.)
+      // Sobrescribe solo los datos de identidad del visitante
+      dni: selectedVisitorData.dni,
+      name: selectedVisitorData.name,
+      company: selectedVisitorData.company,
+    }));
+    setIsPopupOpen(false); // Cierra el popup
+  };
+
   const handleSubmit = async () => {
+    if (!unknownVisitor && !isGenericIDValid(visitor.dni)) {
+      setDniError('El format del DNI no és vàlid. Ha de contenir entre 4 i 20 caràcters (lletres, números, guions o punts).');
+      return; // Detenemos el envío del formulario
+    }
+
+    if (!selectedEmployee) {
+        alert('Si us plau, selecciona un empleat a visitar.');
+        return;
+    }
+
+    // Si la validación es correcta, nos aseguramos de que no haya mensaje de error
+    setDniError('');
     const visitData = {
       visitor,
       visit,
@@ -121,7 +190,7 @@ const VisitForm: React.FC = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:3001/visits', {
+      const response = await fetch(`${API_BASE_URL}/visits`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -185,6 +254,16 @@ const VisitForm: React.FC = () => {
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
+      {/* RENDERIZADO DEL POPUP */}
+      {isPopupOpen && (
+        <SearchPopup
+          results={searchResults}
+          onSelect={handleSelectVisitor}
+          onClose={() => setIsPopupOpen(false)}
+          title={popupTitle}
+        />
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* VISITANT Section */}
         <div className="space-y-4">
@@ -199,8 +278,8 @@ const VisitForm: React.FC = () => {
               onChange={(value) => handleVisitorChange('dni', value)}
               className="flex-1"
             />
-            <Button onClick={searchVisitor} variant="secondary" size="sm">
-              Cercar
+            <Button onClick={() => handleSearch('dni')} variant="secondary" size="sm" disabled={isLoading}>
+              {isLoading ? 'Cercant...' : 'Cercar'}
             </Button>
             <div className="flex items-center space-x-2">
               <input
@@ -221,8 +300,8 @@ const VisitForm: React.FC = () => {
               onChange={(value) => handleVisitorChange('name', value)}
               className="flex-1"
             />
-            <Button variant="secondary" size="sm">
-              Cercar
+            <Button onClick={() => handleSearch('name')} variant="secondary" size="sm" disabled={isLoading}>
+              {isLoading ? 'Cercant...' : 'Cercar'}
             </Button>
           </div>
 
@@ -366,6 +445,12 @@ const VisitForm: React.FC = () => {
           Acceptar
         </Button>
       </div>
+
+      {dniError && (
+        <div className="text-center mt-4 text-red-600 font-semibold">
+          {dniError}
+        </div>
+      )}
 
       <div className="flex justify-center space-x-4 mt-4">
         <Button onClick={cancelVisitor} variant="secondary">

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Button from './Button.tsx';
 import Input from './Input.tsx';
 import TextArea from './TextArea.tsx';
+import { API_BASE_URL } from '../apiConfig.ts';
 
 interface Visitor {
   id: number;
@@ -118,7 +119,7 @@ const VisitorDischarge: React.FC = () => {
   const fetchActiveVisitors = async () => {
     try {
       const today = new Date().toISOString().split('T')[0];
-      const response = await fetch(`http://localhost:3001/visits?status=active&date=${today}`);
+      const response = await fetch(`${API_BASE_URL}/visits?status=active&date=${today}`);
       const data = await response.json();
       setActiveVisitors(data);
     } catch (error) {
@@ -151,7 +152,7 @@ const VisitorDischarge: React.FC = () => {
 
   const handleDischarge = async (visitorId: number, observations: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/visits/${visitorId}`, {
+      const response = await fetch(`${API_BASE_URL}/visits/${visitorId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
