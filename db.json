@@ -1,0 +1,108 @@
+{
+  "visits": [
+    {
+      "id": 1,
+      "visitor": {
+        "dni": "12345678A",
+        "name": "Juan Pérez",
+        "company": "Empresa ABC",
+        "reason": "Reunión comercial",
+        "cardNumber": "001",
+        "visitors": 1,
+        "color": "azul",
+        "observations": "Visita programada para las 10:00"
+      },
+      "visit": {
+        "name": "María González",
+        "dg": "Dirección General",
+        "orgUnit": "Departamento Comercial",
+        "service": "Ventas",
+        "location": "Planta 2, Oficina 201",
+        "phone": "93 123 45 67"
+      },
+      "status": "pending",
+      "createdAt": "2024-06-20T09:30:00Z"
+    },
+    {
+      "id": 2,
+      "visitor": {
+        "dni": "87654321B",
+        "name": "Ana Martín",
+        "company": "Consultora XYZ",
+        "reason": "Auditoría",
+        "cardNumber": "002",
+        "visitors": 2,
+        "color": "rojo",
+        "observations": "Requiere acceso a archivo"
+      },
+      "visit": {
+        "name": "Carlos Ruiz",
+        "dg": "Dirección Financiera",
+        "orgUnit": "Departamento de Finanzas",
+        "service": "Contabilidad",
+        "location": "Planta 3, Oficina 315",
+        "phone": "93 234 56 78"
+      },
+      "status": "active",
+      "createdAt": "2024-06-20T08:15:00Z"
+    },
+    {
+      "visitor": {
+        "dni": "test",
+        "name": "test",
+        "company": "test",
+        "reason": "test",
+        "cardNumber": "1",
+        "visitors": 1,
+        "color": "1",
+        "observations": "asd"
+      },
+      "visit": {
+        "name": "María González",
+        "dg": "Dirección de RRHH",
+        "orgUnit": "Departamento Comercial",
+        "service": "Ventas",
+        "location": "Planta 2, Oficina 201",
+        "phone": "93 123 45 67"
+      },
+      "status": "pending",
+      "createdAt": "2025-06-20T09:24:51.484Z",
+      "id": 3
+    }
+  ],
+  "employees": [
+    {
+      "id": 1,
+      "name": "María González",
+      "dg": "Dirección General",
+      "orgUnit": "Departamento Comercial",
+      "service": "Ventas",
+      "location": "Planta 2, Oficina 201",
+      "phone": "93 123 45 67"
+    },
+    {
+      "id": 2,
+      "name": "Carlos Ruiz",
+      "dg": "Dirección Financiera",
+      "orgUnit": "Departamento de Finanzas",
+      "service": "Contabilidad",
+      "location": "Planta 3, Oficina 315",
+      "phone": "93 234 56 78"
+    },
+    {
+      "id": 3,
+      "name": "Laura Sánchez",
+      "dg": "Dirección de RRHH",
+      "orgUnit": "Recursos Humanos",
+      "service": "Selección",
+      "location": "Planta 1, Oficina 105",
+      "phone": "93 345 67 89"
+    }
+  ],
+  "statistics": {
+    "totalVisits": 156,
+    "todayVisits": 12,
+    "pendingVisits": 3,
+    "activeVisits": 8
+  }
+}
