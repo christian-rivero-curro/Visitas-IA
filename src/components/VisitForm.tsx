@@ -5,6 +5,7 @@ import Select from './Select.tsx';
 import TextArea from './TextArea.tsx';
 import SearchPopup, { SearchResult }  from './SearchPopup.tsx';
 import { API_BASE_URL } from '../apiConfig.ts';
+import { FaBuilding, FaUser } from 'react-icons/fa';
 
 interface VisitorCoreData {
   dni: string;
@@ -267,8 +268,9 @@ const VisitForm: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* VISITANT Section */}
         <div className="space-y-4">
-          <div className="bg-gray-400 text-white text-center py-2 rounded font-semibold">
-            VISITANT
+          <div className="section-header bg-primary mb-6 flex items-center justify-center space-x-2">
+            <FaUser />
+            <span>Visitant</span>
           </div>
           
           <div className="flex items-center space-x-2">
@@ -363,8 +365,9 @@ const VisitForm: React.FC = () => {
 
         {/* VISITA Section */}
         <div className="space-y-4">
-          <div className="bg-orange-400 text-white text-center py-2 rounded font-semibold">
-            VISITA
+          <div className="section-header bg-accent mb-6 flex items-center justify-center space-x-2">
+            <FaBuilding />
+            <span>Visita</span>
           </div>
 
           <div className="flex items-center space-x-2">
