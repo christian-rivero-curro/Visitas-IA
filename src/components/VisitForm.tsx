@@ -5,7 +5,7 @@ import Select from './Select.tsx';
 import TextArea from './TextArea.tsx';
 import SearchPopup, { SearchResult }  from './SearchPopup.tsx';
 import { API_BASE_URL } from '../apiConfig.ts';
-import { FaBuilding, FaUser } from 'react-icons/fa';
+import { FaBuilding, FaUser, FaClock } from 'react-icons/fa';
 
 interface VisitorCoreData {
   dni: string;
@@ -228,6 +228,41 @@ const VisitForm: React.FC = () => {
     }
   };
 
+  // Añadir esta función después de la función cancelVisit
+  const loadLastVisit = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/visits');
+      const data = await response.json();
+      
+      if (data.length > 0) {
+        // Ordenar por createdAt para obtener la más reciente
+        const sortedVisits = data.sort((a: any, b: any) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        
+        const lastVisit = sortedVisits[0];
+        
+        // Solo rellenar los campos de la visita
+        setVisit({
+          name: lastVisit.visit.name || '',
+          dg: lastVisit.visit.dg || '',
+          orgUnit: lastVisit.visit.orgUnit || '',
+          service: lastVisit.visit.service || '',
+          location: lastVisit.visit.location || '',
+          phone: lastVisit.visit.phone || ''
+        });
+        
+        // Actualizar también el empleado seleccionado si existe
+        const employee = employees.find(emp => emp.name === lastVisit.visit.name);
+        if (employee) {
+          setSelectedEmployee(employee);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading last visit:', error);
+    }
+  };
+
   const cancelVisitor = () => {
     setVisitor({
       dni: '',
@@ -370,13 +405,32 @@ const VisitForm: React.FC = () => {
             <span>Visita</span>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <label className="w-20 text-sm font-medium">Cerca per cognom:</label>
-            <Input
-              placeholder="Buscar empleado..."
-              className="flex-1"
-            />
+          <div className="flex items-center gap-4 mt-4">
+            {/* Campo de búsqueda */}
+            <div className="flex items-center space-x-2">
+              <label className="w-32 text-sm font-medium whitespace-nowrap">Cerca per cognom:</label>
+              <Input
+                placeholder="Buscar empleado..."
+                className="flex-1 min-w-[180px]"
+              />
+            </div>
+
+            {/* Botón de búsqueda */}
+            <Button
+              onClick={() => handleSearch('name')}
+              variant="secondary"
+              size="sm"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Cercant...' : 'Cercar'}
+            </Button>
+
+            {/* Botón del reloj */}
+            <Button onClick={loadLastVisit} variant="secondary" size="sm">
+              <FaClock />
+            </Button>
           </div>
+
 
           <div className="flex items-center space-x-2">
             <label className="w-16 text-sm font-medium">Nom:</label>
