@@ -1,3 +1,4 @@
+// src/components/NavigationBar.tsx
 import React from 'react';
 
 type Screen = 'visit-form' | 'visitor-discharge' | 'visit-history' | 'statistics' | 'admin-tasks';
@@ -6,7 +7,7 @@ interface NavigationBarProps {
   currentScreen: Screen;
   onNavigate: (screen: Screen) => void;
   isAdminMode: boolean;
-  onNavigateToForm: () => void; // Added for returning to normal view from admin mode
+  onNavigateToForm: () => void;
 }
 
 const NavigationBar: React.FC<NavigationBarProps> = ({ currentScreen, onNavigate, isAdminMode, onNavigateToForm }) => {
@@ -19,7 +20,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ currentScreen, onNavigate
   ];
 
   const adminNavItems = [
-    { label: 'Gestió d\'Usuaris', href: '#' },
+    { label: 'Gestió d\'Usuaris', screen: 'admin-tasks' as Screen }, // Set screen to 'admin-tasks'
     { label: 'Configuració del Sistema', href: '#' },
     { label: 'Registre d\'Activitats', href: '#' },
     { label: 'Sortir', href: '#' }
@@ -30,8 +31,6 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ currentScreen, onNavigate
   const handleItemClick = (item: typeof navItems[0]) => {
     if ('screen' in item && item.screen) {
       onNavigate(item.screen);
-    } else if ('action' in item && item.action) {
-      item.action();
     } else if ('href' in item && item.href) {
       // Handle external links or logout, etc.
       console.log(`Navigating to: ${item.label}`);
