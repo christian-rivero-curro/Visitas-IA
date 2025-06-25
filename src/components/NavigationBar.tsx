@@ -1,25 +1,40 @@
 import React from 'react';
 
-type Screen = 'visit-form' | 'visitor-discharge' | 'visit-history' | 'statistics';
+type Screen = 'visit-form' | 'visitor-discharge' | 'visit-history' | 'statistics' | 'admin-tasks';
 
 interface NavigationBarProps {
   currentScreen: Screen;
   onNavigate: (screen: Screen) => void;
+  isAdminMode: boolean;
+  onNavigateToForm: () => void; // Added for returning to normal view from admin mode
 }
 
-const NavigationBar: React.FC<NavigationBarProps> = ({ currentScreen, onNavigate }) => {
-  const navItems = [
+const NavigationBar: React.FC<NavigationBarProps> = ({ currentScreen, onNavigate, isAdminMode, onNavigateToForm }) => {
+  const normalNavItems = [
     { label: 'Baixa del visitant', screen: 'visitor-discharge' as Screen },
     { label: 'Històric', screen: 'visit-history' as Screen },
     { label: 'Estadístiques', screen: 'statistics' as Screen },
-    { label: 'Tasques de l\'administrador', href: '#' },
     { label: 'Tornar enrere', screen: 'visit-form' as Screen },
     { label: 'Sortir', href: '#' }
   ];
 
+  const adminNavItems = [
+    { label: 'Gestió d\'Usuaris', href: '#' },
+    { label: 'Configuració del Sistema', href: '#' },
+    { label: 'Registre d\'Activitats', href: '#' },
+    { label: 'Sortir', href: '#' }
+  ];
+
+  const navItems = isAdminMode ? adminNavItems : normalNavItems;
+
   const handleItemClick = (item: typeof navItems[0]) => {
-    if (item.screen) {
+    if ('screen' in item && item.screen) {
       onNavigate(item.screen);
+    } else if ('action' in item && item.action) {
+      item.action();
+    } else if ('href' in item && item.href) {
+      // Handle external links or logout, etc.
+      console.log(`Navigating to: ${item.label}`);
     }
   };
 
@@ -32,7 +47,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ currentScreen, onNavigate
               <button
                 onClick={() => handleItemClick(item)}
                 className={`text-primary hover:text-primary-dark text-sm font-medium px-2 py-1 hover:underline ${
-                  item.screen === currentScreen ? 'font-bold text-primary-dark' : ''
+                  'screen' in item && item.screen === currentScreen ? 'font-bold text-primary-dark' : ''
                 }`}
               >
                 {item.label}

@@ -1,7 +1,13 @@
 import React from 'react';
 import { FaBuilding } from 'react-icons/fa';
+import Button from './Button.tsx'; // Import the Button component
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  onToggleAdminMode: () => void;
+  isAdminMode: boolean; // New prop added
+}
+
+const Header: React.FC<HeaderProps> = ({ onToggleAdminMode, isAdminMode }) => {
   return (
     <header className="gradient-bg text-white shadow-custom-lg">
       <div className="flex items-center justify-between px-8 py-6">
@@ -16,6 +22,14 @@ const Header: React.FC = () => {
             <p className="text-red-100 text-sm">Generalitat de Catalunya</p>
           </div>
         </div>
+        <Button 
+          onClick={onToggleAdminMode} 
+          variant="secondary" 
+          size="sm" 
+          className="bg-white text-primary hover:bg-gray-200"
+        >
+          {isAdminMode ? 'Recepcionista' : 'Administrador'} {/* Conditional text */}
+        </Button>
       </div>
     </header>
   );

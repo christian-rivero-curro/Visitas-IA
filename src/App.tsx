@@ -7,10 +7,20 @@ import Statistics from './components/Statistics.tsx';
 import NavigationBar from './components/NavigationBar.tsx';
 import './index.css';
 
-type Screen = 'visit-form' | 'visitor-discharge' | 'visit-history' | 'statistics';
+type Screen = 'visit-form' | 'visitor-discharge' | 'visit-history' | 'statistics' | 'admin-tasks';
 
 const App: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<Screen>('visit-form');
+  const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
+
+  const handleToggleAdminMode = () => {
+    setIsAdminMode(prev => !prev);
+    setCurrentScreen('visit-form'); // Reset to default screen when toggling mode
+  };
+
+  const handleNavigateToForm = () => {
+    setCurrentScreen('visit-form');
+  };
 
   const renderScreen = () => {
     switch (currentScreen) {
@@ -22,6 +32,14 @@ const App: React.FC = () => {
         return <VisitHistory />;
       case 'statistics':
         return <Statistics />;
+      case 'admin-tasks':
+        // Placeholder for admin-specific content or a dashboard
+        return (
+          <div className="bg-white rounded-lg shadow-lg p-6 text-center">
+            <h1 className="text-2xl font-bold mb-4">Panell d'Administrador</h1>
+            <p className="text-gray-600">Selecciona una opció de la barra de navegació inferior.</p>
+          </div>
+        );
       default:
         return <VisitForm />;
     }
@@ -29,13 +47,15 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Header />
+      <Header onToggleAdminMode={handleToggleAdminMode} isAdminMode={isAdminMode} /> {/* Pass isAdminMode here */}
       <main className="container mx-auto px-4 py-6">
         {renderScreen()}
       </main>
       <NavigationBar 
         currentScreen={currentScreen}
         onNavigate={setCurrentScreen}
+        isAdminMode={isAdminMode}
+        onNavigateToForm={handleNavigateToForm}
       />
     </div>
   );
