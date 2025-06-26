@@ -16,9 +16,15 @@ const App: React.FC = () => {
   const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
 
   const handleToggleAdminMode = () => {
-    setIsAdminMode(prev => !prev);
-    // If toggling to admin mode, go to 'admin-tasks', otherwise reset to 'visit-form'
-    setCurrentScreen(prev => !prev ? 'visit-form' : 'admin-tasks');
+    setIsAdminMode(prevIsAdminMode => {
+      const newIsAdminMode = !prevIsAdminMode;
+      if (newIsAdminMode) {
+        setCurrentScreen('admin-tasks');
+      } else {
+        setCurrentScreen('visit-form');
+      }
+      return newIsAdminMode;
+    });
   };
 
   const handleNavigateToForm = () => {

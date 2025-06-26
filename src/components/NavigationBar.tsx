@@ -12,6 +12,7 @@ interface NavigationBarProps {
 
 const NavigationBar: React.FC<NavigationBarProps> = ({ currentScreen, onNavigate, isAdminMode, onNavigateToForm }) => {
   const normalNavItems = [
+    { label: 'Nova visita', screen: 'visit-form' as Screen },
     { label: 'Baixa del visitant', screen: 'visitor-discharge' as Screen },
     { label: 'Històric', screen: 'visit-history' as Screen },
     { label: 'Estadístiques', screen: 'statistics' as Screen },
