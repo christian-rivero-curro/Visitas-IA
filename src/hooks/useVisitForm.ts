@@ -170,11 +170,32 @@ export const useVisitForm = () => {
     }
 
     setDniError('');
+
+    const visitorData = {
+      dni: visitor.dni,
+      name: visitor.name,
+      company: visitor.company,
+    };
+
+    const visitDetailsData = {
+      reason: visitor.reason,
+      cardNumber: visitor.cardNumber,
+      visitors: visitor.visitors,
+      color: visitor.color,
+      observations: visitor.observations,
+    };
+
+    const visitPayload = {
+      employeeId: selectedEmployee.id,
+      ...visit,
+    };
+
     const visitData = {
-      visitor,
-      visit,
+      visitor: visitorData,
+      visitDetails: visitDetailsData,
+      visit: visitPayload,
       status: 'pending',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
 
     try {
@@ -189,6 +210,9 @@ export const useVisitForm = () => {
       if (response.ok) {
         alert('Visita registrada correctament');
         resetForm();
+      } else {
+        const errorData = await response.json();
+        alert(`Error al registrar la visita: ${errorData.message}`);
       }
     } catch (error) {
       console.error('Error submitting visit:', error);
