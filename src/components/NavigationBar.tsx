@@ -17,14 +17,12 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ currentScreen, onNavigate
     { label: 'Històric', screen: 'visit-history' as Screen },
     { label: 'Estadístiques', screen: 'statistics' as Screen },
     { label: 'Tornar enrere', screen: 'visit-form' as Screen },
-    { label: 'Sortir', href: '#' }
   ];
 
   const adminNavItems = [
     { label: 'Gestió d\'Usuaris', screen: 'admin-tasks' as Screen }, // Set screen to 'admin-tasks'
     { label: 'Configuració del Sistema', href: '#' },
     { label: 'Registre d\'Activitats', href: '#' },
-    { label: 'Sortir', href: '#' }
   ];
 
   const navItems = isAdminMode ? adminNavItems : normalNavItems;
