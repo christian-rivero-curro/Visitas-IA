@@ -1,30 +1,36 @@
 // src/App.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from './context/AuthContext.tsx';
+import { User, UserRole } from './data/users.ts';
+
+import LoginScreen from './components/LoginScreen.tsx';
 import Header from './components/Header.tsx';
 import VisitForm from './components/VisitForm.tsx';
 import VisitorDischarge from './components/VisitorDischarge.tsx';
 import VisitHistory from './components/VisitHistory.tsx';
 import Statistics from './components/Statistics.tsx';
 import NavigationBar from './components/NavigationBar.tsx';
-import UserManagement from './components/UserManagement.tsx'; // Import the new component
+import UserManagement from './components/UserManagement.tsx';
 import './index.css';
 
 type Screen = 'visit-form' | 'visitor-discharge' | 'visit-history' | 'statistics' | 'admin-tasks';
 
 const App: React.FC = () => {
+  const { currentUser, logout } = useAuth();
   const [currentScreen, setCurrentScreen] = useState<Screen>('visit-form');
   const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
 
-  const handleToggleAdminMode = () => {
-    setIsAdminMode(prevIsAdminMode => {
-      const newIsAdminMode = !prevIsAdminMode;
-      if (newIsAdminMode) {
-        setCurrentScreen('admin-tasks');
-      } else {
-        setCurrentScreen('visit-form');
-      }
-      return newIsAdminMode;
-    });
+  useEffect(() => {
+    if (currentUser) {
+      const adminRoles: UserRole[] = ['Administrador', 'Master'];
+      const userIsAdmin = adminRoles.includes(currentUser.role);
+      setIsAdminMode(userIsAdmin);
+      setCurrentScreen(userIsAdmin ? 'admin-tasks' : 'visit-form');
+    }
+  }, [currentUser]);
+
+  const handleLogout = () => {
+    logout();
   };
 
   const handleNavigateToForm = () => {
@@ -33,8 +39,11 @@ const App: React.FC = () => {
 
   const renderScreen = () => {
     if (isAdminMode) {
-      // In admin mode, the default screen is UserManagement which corresponds to 'admin-tasks'
-      return <UserManagement />;
+      switch (currentScreen) {
+        case 'admin-tasks':
+        default:
+          return <UserManagement />;
+      }
     }
 
     switch (currentScreen) {
@@ -46,18 +55,18 @@ const App: React.FC = () => {
         return <VisitHistory />;
       case 'statistics':
         return <Statistics />;
-      case 'admin-tasks':
-        // This case is now effectively handled by the isAdminMode check above,
-        // but keeping it for completeness if admin-tasks were to branch further.
-        return <UserManagement />;
       default:
         return <VisitForm />;
     }
   };
+  
+  if (!currentUser) {
+    return <LoginScreen />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Header onToggleAdminMode={handleToggleAdminMode} isAdminMode={isAdminMode} />
+      <Header onLogout={handleLogout} />
       <main className="container mx-auto px-4 py-6">
         {renderScreen()}
       </main>
