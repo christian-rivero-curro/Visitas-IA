@@ -23,7 +23,7 @@ type FormVisitorState = VisitorCoreData & VisitDetailsData;
 interface VisitorSectionProps {
   visitor: FormVisitorState;
   onVisitorChange: (field: keyof FormVisitorState, value: string | number) => void;
-  onSearch: (searchType: 'dni' | 'name') => void;
+  onSearch: (searchType: 'dni' | 'name', searchTerm: string) => void;
   unknownVisitor: boolean;
   onUnknownVisitorChange: (value: boolean) => void;
   isLoading: boolean;
@@ -52,8 +52,14 @@ const VisitorSection: React.FC<VisitorSectionProps> = ({
           value={visitor.dni}
           onChange={(value) => onVisitorChange('dni', value)}
           className="flex-1"
+          disabled={unknownVisitor} // Añadir esta línea
         />
-        <Button onClick={() => onSearch('dni')} variant="secondary" size="sm" disabled={isLoading}>
+        <Button 
+          onClick={() => onSearch('dni', visitor.dni)} 
+          variant="secondary" 
+          size="sm" 
+          disabled={isLoading || unknownVisitor} // Modificar esta línea
+        >
           {isLoading ? 'Cercant...' : 'Cercar'}
         </Button>
         <div className="flex items-center space-x-2">
@@ -80,8 +86,14 @@ const VisitorSection: React.FC<VisitorSectionProps> = ({
           value={visitor.name}
           onChange={(value) => onVisitorChange('name', value)}
           className="flex-1"
+          disabled={unknownVisitor} // Añadir esta línea
         />
-        <Button onClick={() => onSearch('name')} variant="secondary" size="sm" disabled={isLoading}>
+        <Button 
+          onClick={() => onSearch('name', visitor.name)} 
+          variant="secondary" 
+          size="sm" 
+          disabled={isLoading || unknownVisitor} // Modificar esta línea
+        >
           {isLoading ? 'Cercant...' : 'Cercar'}
         </Button>
       </div>

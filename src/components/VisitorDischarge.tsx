@@ -151,6 +151,10 @@ const VisitorDischarge: React.FC = () => {
   };
 
   const handleDischarge = async (visitorId: number, observations: string) => {
+    if (!visitorId || visitorId <= 0 || isNaN(visitorId)) {
+      alert('No es pot donar de baixa aquest visitant perquè no té un ID de visita vàlid.');
+      return;
+    }
     try {
       const response = await fetch(`${API_BASE_URL}/visits/${visitorId}`, {
         method: 'PATCH',

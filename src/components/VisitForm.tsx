@@ -25,7 +25,7 @@ const VisitForm: React.FC = () => {
     loadLastVisit,
     cancelVisitor,
     cancelVisit,
-    setUnknownVisitor,
+    handleUnknownVisitorChange,
     setIsPopupOpen
   } = useVisitForm();
 
@@ -41,15 +41,15 @@ const VisitForm: React.FC = () => {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <VisitorSection
-          visitor={visitor}
-          onVisitorChange={handleVisitorChange}
-          onSearch={handleSearch}
-          unknownVisitor={unknownVisitor}
-          onUnknownVisitorChange={setUnknownVisitor}
-          isLoading={isLoading}
-          dniError={dniError}
-        />
+      <VisitorSection
+        visitor={visitor}
+        onVisitorChange={handleVisitorChange}
+        onSearch={handleSearch}
+        unknownVisitor={unknownVisitor}
+        onUnknownVisitorChange={handleUnknownVisitorChange}
+        isLoading={isLoading}
+        dniError={dniError}
+      />
 
         <VisitSection
           visit={visit}

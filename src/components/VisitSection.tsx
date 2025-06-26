@@ -29,7 +29,7 @@ interface VisitSectionProps {
   onVisitChange: (field: keyof VisitData, value: string) => void;
   onEmployeeSelect: (employeeName: string) => void;
   onLoadLastVisit: () => void;
-  onSearch: (searchType: 'name') => void;
+  onSearch: (searchType: 'dni' | 'name', searchTerm: string) => void;
   isLoading: boolean;
 }
 
@@ -42,6 +42,7 @@ const VisitSection: React.FC<VisitSectionProps> = ({
   onSearch,
   isLoading
 }) => {
+  const [searchTerm, setSearchTerm] = React.useState('');
   return (
     <div className="space-y-4">
       <div className="section-header bg-accent mb-6 flex items-center justify-center space-x-2">
@@ -53,13 +54,15 @@ const VisitSection: React.FC<VisitSectionProps> = ({
         <div className="flex items-center space-x-2">
           <label className="w-32 text-sm font-medium whitespace-nowrap">Cerca per cognom:</label>
           <Input
+            value={searchTerm}
+            onChange={setSearchTerm}
             placeholder="Buscar empleado..."
             className="flex-1 min-w-[180px]"
           />
         </div>
 
         <Button
-          onClick={() => onSearch('name')}
+          onClick={() => onSearch('name', searchTerm)}
           variant="secondary"
           size="sm"
           disabled={isLoading}

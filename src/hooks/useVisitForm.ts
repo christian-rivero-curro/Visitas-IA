@@ -110,8 +110,8 @@ export const useVisitForm = () => {
     }
   };
 
-  const handleSearch = async (searchType: 'dni' | 'name') => {
-    const searchTerm = searchType === 'dni' ? visitor.dni : visitor.name;
+  const handleSearch = async (searchType: 'dni' | 'name', searchTerm: string) => {
+
     if (!searchTerm.trim()) {
       alert(`Si us plau, introdueix un ${searchType} per a buscar.`);
       return;
@@ -122,8 +122,8 @@ export const useVisitForm = () => {
 
     try {
       const queryParam = searchType === 'dni' 
-        ? `dni_like=${searchTerm}` 
-        : `name_like=${searchTerm}`;
+        ? `dni_like=${encodeURIComponent(searchTerm)}` 
+        : `name_like=${encodeURIComponent(searchTerm)}`;
 
       const response = await fetch(`${API_BASE_URL}/visits?${queryParam}`);
       const data: SearchResult[] = await response.json();
@@ -158,23 +158,42 @@ export const useVisitForm = () => {
     setIsPopupOpen(false);
   };
 
-  const handleSubmit = async () => {
+  const handleUnknownVisitorChange = (value: boolean) => {
+    setUnknownVisitor(value);
+    if (value) {
+      // Limpiar DNI y nombre cuando se marca como desconocido
+      setVisitor(prev => ({
+        ...prev,
+        dni: '',
+        name: ''
+      }));
+      setDniError(''); // Limpiar cualquier error de DNI
+    }
+  };
+
+  const handleSubmit = async (): Promise<void> => {
+    const finalVisitorData = unknownVisitor ? {
+      ...visitor,
+      dni: 'Desconegut',
+      name: 'Desconegut'
+    } : visitor;
+  
     if (!unknownVisitor && !isGenericIDValid(visitor.dni)) {
       setDniError('El format del DNI no és vàlid. Ha de contenir entre 4 i 20 caràcters (lletres, números, guions o punts).');
       return;
     }
-
+  
     if (!selectedEmployee) {
       alert('Si us plau, selecciona un empleat a visitar.');
       return;
     }
-
+  
     setDniError('');
-
+  
     const visitorData = {
-      dni: visitor.dni,
-      name: visitor.name,
-      company: visitor.company,
+      dni: finalVisitorData.dni,
+      name: finalVisitorData.name,
+      company: finalVisitorData.company,
     };
 
     const visitDetailsData = {
@@ -207,16 +226,26 @@ export const useVisitForm = () => {
         body: JSON.stringify(visitData),
       });
 
-      if (response.ok) {
-        alert('Visita registrada correctament');
-        resetForm();
-      } else {
+      if (!response.ok) {
         const errorData = await response.json();
-        alert(`Error al registrar la visita: ${errorData.message}`);
+        throw new Error(errorData.message || 'Error al registrar la visita');
       }
+      
+      // Si la respuesta es exitosa, procesar la respuesta
+      const data = await response.json();
+      const visitId = data.visitId || data.id; // Asegurarse de capturar el ID de la respuesta
+      
+      if (!visitId) {
+        throw new Error('No se pudo obtener el ID de la visita');
+      }
+      
+      alert('Visita registrada correctament');
+      resetForm();
     } catch (error) {
       console.error('Error submitting visit:', error);
-      alert('Error al registrar la visita');
+      const errorMessage = error instanceof Error ? error.message : 'Error al registrar la visita';
+      alert(errorMessage);
+      throw error; // Relanzar el error para manejarlo en el componente
     }
   };
 
@@ -319,7 +348,7 @@ export const useVisitForm = () => {
     loadLastVisit,
     cancelVisitor,
     cancelVisit,
-    setUnknownVisitor,
+    handleUnknownVisitorChange,
     setIsPopupOpen
   };
 };
