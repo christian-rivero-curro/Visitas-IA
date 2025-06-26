@@ -1,23 +1,25 @@
 // src/App.tsx
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext.tsx';
-import { User, UserRole } from './data/users.ts';
+import { UserRole } from './data/users.ts';
 
-import LoginScreen from './components/LoginScreen.tsx';
 import Header from './components/Header.tsx';
-import VisitForm from './components/VisitForm.tsx';
-import VisitorDischarge from './components/VisitorDischarge.tsx';
-import VisitHistory from './components/VisitHistory.tsx';
-import Statistics from './components/Statistics.tsx';
 import NavigationBar from './components/NavigationBar.tsx';
-import UserManagement from './components/UserManagement.tsx';
-import './index.css';
 
-type Screen = 'visit-form' | 'visitor-discharge' | 'visit-history' | 'statistics' | 'admin-tasks';
+// Importa las páginas
+import LoginPage from './pages/LoginPage.tsx';
+import NuevaVisita from './pages/NuevaVisita.tsx';
+import BajaVisitante from './pages/BajaVisitante.tsx';
+import Historico from './pages/Historico.tsx';
+import Estadisticas from './pages/Estadisticas.tsx';
+import GestionUsuarios from './pages/GestionUsuarios.tsx'; // <-- Importa la nueva página
+
+import './index.css';
 
 const App: React.FC = () => {
   const { currentUser, logout } = useAuth();
-  const [currentScreen, setCurrentScreen] = useState<Screen>('visit-form');
+  const navigate = useNavigate();
   const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
 
   useEffect(() => {
@@ -25,56 +27,54 @@ const App: React.FC = () => {
       const adminRoles: UserRole[] = ['Administrador', 'Master'];
       const userIsAdmin = adminRoles.includes(currentUser.role);
       setIsAdminMode(userIsAdmin);
-      setCurrentScreen(userIsAdmin ? 'admin-tasks' : 'visit-form');
+      if (window.location.pathname === '/login' || window.location.pathname === '/') {
+        if (userIsAdmin) {
+          navigate('/admin');
+        } else {
+          navigate('/nueva-visita');
+        }
+      }
+    } else {
+        navigate('/login');
     }
-  }, [currentUser]);
+  }, [currentUser, navigate]);
 
   const handleLogout = () => {
     logout();
+    navigate('/login');
   };
 
-  const handleNavigateToForm = () => {
-    setCurrentScreen('visit-form');
-  };
-
-  const renderScreen = () => {
-    if (isAdminMode) {
-      switch (currentScreen) {
-        case 'admin-tasks':
-        default:
-          return <UserManagement />;
-      }
-    }
-
-    switch (currentScreen) {
-      case 'visit-form':
-        return <VisitForm />;
-      case 'visitor-discharge':
-        return <VisitorDischarge />;
-      case 'visit-history':
-        return <VisitHistory />;
-      case 'statistics':
-        return <Statistics />;
-      default:
-        return <VisitForm />;
-    }
-  };
-  
   if (!currentUser) {
-    return <LoginScreen />;
+    return (
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    );
   }
 
   return (
     <div className="min-h-screen bg-gray-100">
       <Header onLogout={handleLogout} />
       <main className="container mx-auto px-4 py-6">
-        {renderScreen()}
+        <Routes>
+            <Route path="/" element={<Navigate to={isAdminMode ? "/admin" : "/nueva-visita"} />} />
+
+            {/* AHORA la ruta /admin renderiza la página GestionUsuarios */}
+            {isAdminMode && <Route path="/admin" element={<GestionUsuarios />} />}
+
+            <Route path="/nueva-visita" element={<NuevaVisita />} />
+            <Route path="/baja-visitante" element={<BajaVisitante />} />
+            <Route path="/historico" element={<Historico />} />
+            <Route path="/estadisticas" element={<Estadisticas />} />
+            
+            <Route path="/login" element={<Navigate to={isAdminMode ? "/admin" : "/nueva-visita"} />} />
+
+            <Route path="*" element={<h2>Página no encontrada</h2>} />
+        </Routes>
       </main>
       <NavigationBar
-        currentScreen={currentScreen}
-        onNavigate={setCurrentScreen}
         isAdminMode={isAdminMode}
-        onNavigateToForm={handleNavigateToForm}
       />
     </div>
   );

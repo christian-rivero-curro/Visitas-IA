@@ -75,17 +75,15 @@ const Statistics: React.FC = () => {
 
     const dayCount: { [key: number]: number } = {};
     
-    // Inicializar contadores
     weekdays.forEach(day => {
       dayCount[day.key] = 0;
     });
 
-    // Contar visitas por día de la semana (solo días laborables)
     visits.forEach(visit => {
       const date = new Date(visit.createdAt);
-      const dayOfWeek = date.getDay(); // 0 = domingo, 1 = lunes, ..., 6 = sábado
+      const dayOfWeek = date.getDay();
       
-      if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Solo días laborables
+      if (dayOfWeek >= 1 && dayOfWeek <= 5) {
         dayCount[dayOfWeek]++;
       }
     });
@@ -105,13 +103,11 @@ const Statistics: React.FC = () => {
   const calculateOrgUnitStats = () => {
     const orgUnitCount: { [key: string]: number } = {};
 
-    // Contar visitas por unidad orgánica
     visits.forEach(visit => {
       const orgUnit = visit.visit.orgUnit || 'Sense especificar';
       orgUnitCount[orgUnit] = (orgUnitCount[orgUnit] || 0) + 1;
     });
 
-    // Filtrar solo unidades con más de 1 visita y crear estadísticas
     const stats: OrgUnitStats[] = Object.entries(orgUnitCount)
       .filter(([_, count]) => count > 1)
       .map(([orgUnit, count]) => ({
@@ -119,23 +115,9 @@ const Statistics: React.FC = () => {
         count,
         percentage: totalVisits > 0 ? (count / totalVisits) * 100 : 0
       }))
-      .sort((a, b) => b.count - a.count); // Ordenar por número de visitas descendente
+      .sort((a, b) => b.count - a.count);
 
     setOrgUnitStats(stats);
-  };
-
-  const getBarColor = (index: number) => {
-    const colors = [
-      'bg-blue-500',
-      'bg-green-500',
-      'bg-yellow-500',
-      'bg-red-500',
-      'bg-purple-500',
-      'bg-indigo-500',
-      'bg-pink-500',
-      'bg-gray-500'
-    ];
-    return colors[index % colors.length];
   };
 
   const maxWeekdayCount = Math.max(...weekdayStats.map(stat => stat.count));
@@ -143,41 +125,41 @@ const Statistics: React.FC = () => {
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
-      <h1 className="text-2xl font-bold text-center mb-8">Estadístiques de Visites</h1>
+      <h1 className="text-2xl font-bold text-center mb-8 text-gray-800">Estadístiques de Visites</h1>
       
       {/* Resumen General */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div className="bg-blue-50 p-4 rounded-lg text-center">
-          <div className="text-2xl font-bold text-blue-600">{totalVisits}</div>
-          <div className="text-sm text-blue-800">Total Visites</div>
+        <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg text-center">
+          <div className="text-2xl font-bold text-gray-700">{totalVisits}</div>
+          <div className="text-sm text-gray-600">Total Visites</div>
         </div>
-        <div className="bg-green-50 p-4 rounded-lg text-center">
-          <div className="text-2xl font-bold text-green-600">
+        <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg text-center">
+          <div className="text-2xl font-bold text-gray-700">
             {visits.filter(v => v.status === 'active').length}
           </div>
-          <div className="text-sm text-green-800">Visites Actives</div>
+          <div className="text-sm text-gray-600">Visites Actives</div>
         </div>
-        <div className="bg-purple-50 p-4 rounded-lg text-center">
-          <div className="text-2xl font-bold text-purple-600">
+        <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg text-center">
+          <div className="text-2xl font-bold text-gray-700">
             {new Set(visits.map(v => v.visit.orgUnit)).size}
           </div>
-          <div className="text-sm text-purple-800">Unitats Orgàniques</div>
+          <div className="text-sm text-gray-600">Unitats Orgàniques</div>
         </div>
       </div>
 
       {/* Estadísticas por Día de la Semana */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Visites per Dia de la Setmana</h2>
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <div className="space-y-3">
+        <h2 className="text-xl font-semibold mb-4 text-gray-800">Visites per Dia de la Setmana</h2>
+        <div className="bg-gray-50 border border-gray-200 p-6 rounded-lg">
+          <div className="space-y-4">
             {weekdayStats.map((stat, index) => (
               <div key={stat.day} className="flex items-center space-x-4">
-                <div className="w-20 text-sm font-medium text-right">
+                <div className="w-20 text-sm font-medium text-right text-gray-700">
                   {stat.dayName}
                 </div>
-                <div className="flex-1 bg-gray-200 rounded-full h-6 relative">
+                <div className="flex-1 bg-gray-300 rounded-full h-6 relative">
                   <div
-                    className={`h-6 rounded-full ${getBarColor(index)} transition-all duration-500 flex items-center justify-end pr-2`}
+                    className="h-6 rounded-full bg-[#CE463F] transition-all duration-500 flex items-center justify-end pr-2"
                     style={{
                       width: maxWeekdayCount > 0 ? `${(stat.count / maxWeekdayCount) * 100}%` : '0%'
                     }}
@@ -200,27 +182,27 @@ const Statistics: React.FC = () => {
 
       {/* Estadísticas por Unidad Orgánica */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">
+        <h2 className="text-xl font-semibold mb-4 text-gray-800">
           Visites per Unitat Orgànica 
           <span className="text-sm font-normal text-gray-600 ml-2">
             (amb més d'1 visita)
           </span>
         </h2>
-        <div className="bg-gray-50 p-4 rounded-lg">
+        <div className="bg-gray-50 border border-gray-200 p-6 rounded-lg">
           {orgUnitStats.length === 0 ? (
             <div className="text-center text-gray-500 py-8">
               No hi ha unitats orgàniques amb més d'una visita
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {orgUnitStats.map((stat, index) => (
                 <div key={stat.orgUnit} className="flex items-center space-x-4">
-                  <div className="w-32 text-sm font-medium text-right truncate" title={stat.orgUnit}>
+                  <div className="w-32 text-sm font-medium text-right truncate text-gray-700" title={stat.orgUnit}>
                     {stat.orgUnit}
                   </div>
-                  <div className="flex-1 bg-gray-200 rounded-full h-6 relative">
+                  <div className="flex-1 bg-gray-300 rounded-full h-6 relative">
                     <div
-                      className={`h-6 rounded-full ${getBarColor(index + 2)} transition-all duration-500 flex items-center justify-end pr-2`}
+                      className="h-6 rounded-full bg-[#CE463F] transition-all duration-500 flex items-center justify-end pr-2"
                       style={{
                         width: maxOrgUnitCount > 0 ? `${(stat.count / maxOrgUnitCount) * 100}%` : '0%'
                       }}
@@ -239,68 +221,6 @@ const Statistics: React.FC = () => {
               ))}
             </div>
           )}
-        </div>
-      </div>
-
-      {/* Tabla Detallada de Días de la Semana */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold mb-3">Detall per Dies de la Setmana</h3>
-        <div className="overflow-x-auto">
-          <table className="min-w-full border border-gray-300">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="border border-gray-300 px-4 py-2 text-left">Dia</th>
-                <th className="border border-gray-300 px-4 py-2 text-center">Nombre de Visites</th>
-                <th className="border border-gray-300 px-4 py-2 text-center">Percentatge</th>
-              </tr>
-            </thead>
-            <tbody>
-              {weekdayStats.map((stat) => (
-                <tr key={stat.day} className="hover:bg-gray-50">
-                  <td className="border border-gray-300 px-4 py-2 font-medium">
-                    {stat.dayName}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2 text-center">
-                    {stat.count}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2 text-center">
-                    {stat.percentage.toFixed(1)}%
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Tabla Detallada de Unidades Orgánicas */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold mb-3">Detall per Unitats Orgàniques</h3>
-        <div className="overflow-x-auto">
-          <table className="min-w-full border border-gray-300">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="border border-gray-300 px-4 py-2 text-left">Unitat Orgànica</th>
-                <th className="border border-gray-300 px-4 py-2 text-center">Nombre de Visites</th>
-                <th className="border border-gray-300 px-4 py-2 text-center">Percentatge</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orgUnitStats.map((stat) => (
-                <tr key={stat.orgUnit} className="hover:bg-gray-50">
-                  <td className="border border-gray-300 px-4 py-2">
-                    {stat.orgUnit}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2 text-center font-medium">
-                    {stat.count}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2 text-center">
-                    {stat.percentage.toFixed(1)}%
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       </div>
     </div>
